@@ -1,15 +1,12 @@
 package com.project.musicapp.ui
 
-import android.net.Uri
 import androidx.appcompat.app.AppCompatActivity
 import android.os.Bundle
-import androidx.core.net.toUri
+import android.support.v4.media.session.MediaControllerCompat
 import com.bumptech.glide.Glide
 import com.project.musicapp.R
 import com.project.musicapp.databinding.ActivityMainBinding
-import com.project.musicapp.utils.Response
-import org.json.JSONArray
-import org.json.JSONObject
+import com.project.musicapp.model.Response
 
 class MainActivity : AppCompatActivity() {
 
@@ -17,12 +14,21 @@ class MainActivity : AppCompatActivity() {
     private var _binding: ActivityMainBinding? = null
     private val binding get() = _binding
 
+    private var mediaController: MediaControllerCompat? = null
+    private var callback: MediaControllerCompat.Callback? = null
+
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         _binding = ActivityMainBinding.inflate(layoutInflater)
         setContentView(binding?.root)
+        loadData()
 
-        val jsonString: String = applicationContext.assets.open("playlist.json").bufferedReader().use { it.readText() }
+        setTitleFirstTrack(model[0].title)
+        setImage(model[0].bitmapUri)
+    }
+
+    private fun loadData() {
+/*        val jsonString: String = applicationContext.assets.open("playlist.json").bufferedReader().use { it.readText() }
         val ja = JSONArray(jsonString)
         for (i in 0 until ja.length()) {
             val jsonTrack: JSONObject = ja.getJSONObject(i)
@@ -32,9 +38,7 @@ class MainActivity : AppCompatActivity() {
             val trackUri = jsonTrack.getString("trackUri")
             val duration = jsonTrack.getInt("duration").toLong()
             model.add(Response(title, artist, bitmapUri, trackUri, duration))
-        }
-        setTitleFirstTrack(model[0].title)
-        setImage(model[0].bitmapUri)
+        }*/
     }
 
     private fun setTitleFirstTrack(title: String?) {
@@ -42,12 +46,15 @@ class MainActivity : AppCompatActivity() {
     }
 
     private fun setImage(uriStr: String?) {
-        binding?.trackPic?.let {
-            Glide
-                .with(this)
-                .load(uriStr)
-                //.placeholder(R.drawable.ic_baseline_music_note_24)
-                .into(it)
-        }
+        try {
+            binding?.trackPic?.let {
+                Glide
+                    .with(this)
+                    .load(uriStr)
+                    .placeholder(R.drawable.ic_baseline_music_note_24)
+                    .into(it)
+            }
+        } catch (e: Exception) {}
+
     }
 }
